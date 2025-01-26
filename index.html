@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Team Pair Scores</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    .pair {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .pair input {
+      margin: 0 5px;
+      width: 50px;
+      text-align: center;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    table {
+      margin-top: 20px;
+      border-collapse: collapse;
+      width: 100%;
+    }
+    table, th, td {
+      border: 1px solid #ddd;
+    }
+    th, td {
+      text-align: center;
+      padding: 8px;
+    }
+    th {
+      background-color: #f4f4f4;
+    }
+  </style>
+</head>
+<body>
+  <h1>Team Pair Scores</h1>
+  <div id="scoreInputs"></div>
+  <button onclick="saveScores()">Save Scores</button>
+  <div id="resultsTable"></div>
+
+  <script>
+    // Generate team pairs and shuffle
+    let listOfTeams = ['Pafos', 'Aris', 'AEK', 'Omonia', 'APOEL', 'Anorthosis'];
+    let pairs = [];
+    for (let i = 0; i < listOfTeams.length; i++) {
+      for (let j = i + 1; j < listOfTeams.length; j++) {
+        pairs.push([listOfTeams[i], listOfTeams[j]]);
+        pairs.push([listOfTeams[j], listOfTeams[i]]);
+      }
+    }
+
+    // Shuffle pairs
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        let j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+    shuffle(pairs);
+
+    // Render input fields for scores
+    let scoreInputsDiv = document.getElementById('scoreInputs');
+    pairs.forEach((pair, index) => {
+      let pairDiv = document.createElement('div');
+      pairDiv.className = 'pair';
+      pairDiv.innerHTML = `
+        <span>${pair[0]} vs ${pair[1]}:</span>
+        <input type="number" id="score1-${index}" placeholder="Score 1" value="0">
+        <span>-</span>
+        <input type="number" id="score2-${index}" placeholder="Score 2" value="0">
+      `;
+      scoreInputsDiv.appendChild(pairDiv);
+    });
+
+    // Save scores and calculate points
+    function saveScores() {
+      let scores = [];
+      let points = {};
+      let goals = {};
+      listOfTeams.forEach(team => {
+        points[team] = 0; // Initialize points for each team
+        goals[team] = 0;  // Initialize goals for each team
+      });
+
+      pairs.forEach((pair, index) => {
+        let score1 = parseInt(document.getElementById(`score1-${index}`).value || 0);
+        let score2 = parseInt(document.getElementById(`score2-${index}`).value || 0);
+        scores.push({ pair: pair, score: [score1, score2] });
+
+        // Update goals scored
+        goals[pair[0]] += score1;
+        goals[pair[1]] += score2;
+
+        // Calculate points
+        if (score1 > score2) {
+          points[pair[0]] += 3; // Team 1 wins
+        } else if (score2 > score1) {
+          points[pair[1]] += 3; // Team 2 wins
+        } else {
+          points[pair[0]] += 1; // Draw
+          points[pair[1]] += 1; // Draw
+        }
+      });
+
+      console.log('Saved Scores:', scores);
+      console.log('Points:', points);
+      console.log('Goals:', goals);
+      displayResultsTable(points, goals);
+    //   alert('Scores saved successfully! Check the table for results.');
+    }
+
+    // Display results table
+    function displayResultsTable(points, goals) {
+      let resultsDiv = document.getElementById('resultsTable');
+      resultsDiv.innerHTML = ''; // Clear any existing table
+
+      let table = document.createElement('table');
+      let headerRow = `
+        <tr>
+          <th>Team</th>
+          <th>Points</th>
+          <th>Total Goals Scored</th>
+        </tr>
+      `;
+      table.innerHTML = headerRow;
+
+      Object.entries(points).forEach(([team, point]) => {
+        let row = `
+          <tr>
+            <td>${team}</td>
+            <td>${point}</td>
+            <td>${goals[team]}</td>
+          </tr>
+        `;
+        table.innerHTML += row;
+      });
+
+      resultsDiv.appendChild(table);
+    }
+  </script>
+</body>
+</html>

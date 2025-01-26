@@ -220,15 +220,34 @@ pairs.unshift(...predefinedPairs)
     });
 
     // Save scores and calculate points
-function saveScores() {
+    function saveScores() {
   let points = {};
   let goals = {};
   let scores = [];
 
+  // Predefined initial values for the teams in listOfTeams
+  const initialPoints = {
+    'Pafos': 46,  // Example starting points
+    'Aris': 44,    // Example starting points
+    'AEK': 41,    // Example starting points
+    'Omonia': 39,  // Example starting points
+    'APOEL': 32,   // Example starting points
+    'Anorthosis': 31 // Example starting points
+  };
+  
+  const initialGoals = {
+    'Pafos': 40,  // Example starting goals
+    'Aris': 32,   // Example starting goals
+    'AEK': 33,    // Example starting goals
+    'Omonia': 40, // Example starting goals
+    'APOEL': 39,  // Example starting goals
+    'Anorthosis': 28 // Example starting goals
+  };
+
   // Initialize points, goals, and head-to-head scores
   listOfTeams.forEach(team => {
-    points[team] = 0;
-    goals[team] = 0;
+    points[team] = initialPoints[team] || 0;  // Use predefined points or default to 0
+    goals[team] = initialGoals[team] || 0;    // Use predefined goals or default to 0
     headToHeadScores[team] = {};
     listOfTeams.forEach(opponent => {
       if (team !== opponent) {

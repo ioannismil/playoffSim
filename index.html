@@ -137,6 +137,53 @@
   <div id="resultsTable"></div>
 
   <script>
+        const predefinedPairs = [
+      ['Karmiotissa', 'Pafos'],
+      ['APOEL', 'Omonia Aradippou'],
+      ['Aris', 'Ethnikos Achnas'],
+      ['Nea Salamina', 'Aris'],
+      ['Omonia', 'Karmiotissa'],
+      ['Ethnikos', 'Enosis Neon Paralimniou'],
+      ['Apollon', 'Omonia Aradippou'],
+      ['AEK', 'AEL'],
+      ['Pafos', 'ALS Omonia'],
+      ['Anorthosis', 'APOEL'],
+      ['ALS Omonia', 'Omonia'],
+      ['APOEL', 'Apollon'],
+      ['Omonia Aradippou', 'Pafos'],
+      ['AEL', 'Anorthosis'],
+      ['Karmiotissa', 'Ethnikos'],
+      ['Enosis Neon Paralimniou', 'Nea Salamina'],
+      ['Aris', 'AEK'],
+      ['Nea Salamina', 'Karmiotissa'],
+      ['AEK', 'Enosis Neon Paralimniou'],
+      ['Ethnikos', 'ALS Omonia'],
+      ['Apollon', 'Omonia'],
+      ['APOEL', 'Pafos'],
+      ['Omonia Aradippou', 'Ethnikos'],
+      ['ALS Omonia', 'Nea Salamina'],
+      ['Enosis Neon Paralimniou', 'Anorthosis'],
+      ['Karmiotissa', 'AEK'],
+      ['Aris', 'AEL'],
+      ['Anorthosis', 'Aris'],
+      ['Omonia', 'Omonia Aradippou'],
+      ['Pafos', 'Apollon'],
+      ['AEL', 'APOEL'],
+      ['Aris', 'APOEL'],
+      ['Nea Salamina', 'Omonia Aradippou'],
+      ['AEL', 'Enosis Neon Paralimniou'],
+      ['Anorthosis', 'Karmiotissa'],
+      ['Ethnikos', 'Apollon'],
+      ['AEK', 'ALS Omonia'],
+      ['Omonia', 'Pafos'],
+      ['Apollon', 'Nea Salamina'],
+      ['Omonia Aradippou', 'AEK'],
+      ['Enosis Neon Paralimniou', 'Aris'],
+      ['APOEL', 'Omonia'],
+      ['Karmiotissa', 'AEL'],
+      ['ALS Omonia', 'Anorthosis'],
+      ['Pafos', 'Ethnikos']
+    ];
     // Generate team pairs and shuffle
     let listOfTeams = ['Pafos', 'Aris', 'AEK', 'Omonia', 'APOEL', 'Anorthosis'];
     let pairs = [];
@@ -150,14 +197,14 @@
     }
 
     // Shuffle pairs
-    function shuffle(array) {
-      for (let i = array.length - 1; i > 0; i--) {
-        let j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-      }
-    }
-    shuffle(pairs);
-
+    // function shuffle(array) {
+    //   for (let i = array.length - 1; i > 0; i--) {
+    //     let j = Math.floor(Math.random() * (i + 1));
+    //     [array[i], array[j]] = [array[j], array[i]];
+    //   }
+    // }
+    // shuffle(pairs);
+pairs.unshift(...predefinedPairs)
     // Render input fields for scores
     let scoreInputsDiv = document.getElementById('scoreInputs');
     pairs.forEach((pair, index) => {
@@ -167,54 +214,79 @@
         <span>${pair[0]} vs ${pair[1]}:</span>
         <input type="number" id="score1-${index}" placeholder="Score 1" value="0" min="0">
         <span>-</span>
-        <input type="number" id="score2-${index}" placeholder="Score 2" value="0" min="0">
+        <input type="number" id="score2-${index}" placeholder="Score 2" value="0" min="0" >
       `;
       scoreInputsDiv.appendChild(pairDiv);
     });
 
     // Save scores and calculate points
-    function saveScores() {
-      let points = {};
-      let goals = {};
-      let scores = [];
+function saveScores() {
+  let points = {};
+  let goals = {};
+  let scores = [];
 
-      // Initialize points, goals, and head-to-head scores
-      listOfTeams.forEach(team => {
-        points[team] = 0;
-        goals[team] = 0;
-        headToHeadScores[team] = {};
-        listOfTeams.forEach(opponent => {
-          if (team !== opponent) {
-            headToHeadScores[team][opponent] = [0, 0];
-          }
-        });
-      });
+  // Initialize points, goals, and head-to-head scores
+  listOfTeams.forEach(team => {
+    points[team] = 0;
+    goals[team] = 0;
+    headToHeadScores[team] = {};
+    listOfTeams.forEach(opponent => {
+      if (team !== opponent) {
+        headToHeadScores[team][opponent] = [0, 0];
+      }
+    });
+  });
 
-      pairs.forEach((pair, index) => {
-        let score1 = parseInt(document.getElementById(`score1-${index}`).value || 0);
-        let score2 = parseInt(document.getElementById(`score2-${index}`).value || 0);
-        scores.push({ pair: pair, score: [score1, score2] });
+  pairs.forEach((pair, index) => {
+    let score1 = parseInt(document.getElementById(`score1-${index}`).value || 0);
+    let score2 = parseInt(document.getElementById(`score2-${index}`).value || 0);
+    scores.push({ pair: pair, score: [score1, score2] });
 
+    if (listOfTeams.includes(pair[0]) && listOfTeams.includes(pair[1])) {
+      // Both teams are in the list, so calculate points and goals
+      goals[pair[0]] += score1;
+      goals[pair[1]] += score2;
+
+      // Update head-to-head scores
+      headToHeadScores[pair[0]][pair[1]][0] += score1;
+      headToHeadScores[pair[0]][pair[1]][1] += score2;
+      headToHeadScores[pair[1]][pair[0]][0] += score2;
+      headToHeadScores[pair[1]][pair[0]][1] += score1;
+
+      // Calculate points
+      if (score1 > score2) {
+        points[pair[0]] += 3;
+      } else if (score2 > score1) {
+        points[pair[1]] += 3;
+      } else {
+        points[pair[0]] += 1;
+        points[pair[1]] += 1;
+      }
+    } else {
+      // If only one team is in the list, calculate points and goals for the listed team
+      if (listOfTeams.includes(pair[0])) {
         goals[pair[0]] += score1;
-        goals[pair[1]] += score2;
-
-        headToHeadScores[pair[0]][pair[1]][0] += score1;
-        headToHeadScores[pair[0]][pair[1]][1] += score2;
-        headToHeadScores[pair[1]][pair[0]][0] += score2;
-        headToHeadScores[pair[1]][pair[0]][1] += score1;
-
         if (score1 > score2) {
           points[pair[0]] += 3;
-        } else if (score2 > score1) {
-          points[pair[1]] += 3;
-        } else {
+        } else if (score1 === score2) {
           points[pair[0]] += 1;
+        }
+      }
+      if (listOfTeams.includes(pair[1])) {
+        goals[pair[1]] += score2;
+        if (score2 > score1) {
+          points[pair[1]] += 3;
+        } else if (score1 === score2) {
           points[pair[1]] += 1;
         }
-      });
-
-      displayResultsTable(points, goals);
+      }
     }
+  });
+
+  displayResultsTable(points, goals);
+}
+
+
 
     function sortTeams(points, goals) {
       return listOfTeams.slice().sort((teamA, teamB) => {

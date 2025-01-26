@@ -165,9 +165,9 @@
       pairDiv.className = 'pair';
       pairDiv.innerHTML = `
         <span>${pair[0]} vs ${pair[1]}:</span>
-        <input type="number" id="score1-${index}" placeholder="Score 1" value="0">
+        <input type="number" id="score1-${index}" placeholder="Score 1" value="0" min="0">
         <span>-</span>
-        <input type="number" id="score2-${index}" placeholder="Score 2" value="0">
+        <input type="number" id="score2-${index}" placeholder="Score 2" value="0" min="0">
       `;
       scoreInputsDiv.appendChild(pairDiv);
     });
